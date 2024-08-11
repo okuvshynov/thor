@@ -6,11 +6,38 @@ import threading
 import time
 
 # Configuration
-MAX_MEASUREMENTS = 15  # Maximum number of measurements to store
+W_CHART = 15  # Maximum number of measurements to store
 
 # Global variables
 measurements = []  # List to store measurements
 lock = threading.Lock()  # Lock to synchronize access to measurements
+
+def gen_blocks():
+    # shades of green
+    colors = [231, 157, 40, 28]
+    blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
+    result = []
+
+    for i in range(len(colors) - 1):
+        color1, color2 = colors[i], colors[i + 1]
+        for block in blocks:
+            result.append(f"#[fg=colour{color2},bg=colour{color1}]{block}")
+
+    return result
+
+def plot_bar_chart(values):
+    blocks = gen_blocks()
+
+    out = []
+
+    for value in values:
+        if value < 0 or value > 1:
+            raise ValueError("Value must be in range 0...1")
+
+        block_index = int(value * len(blocks))
+        block = blocks[min(block_index, len(blocks) - 1)]
+        out.append(block)
+    return "G:" + "".join(out)
 
 def collect_data():
     # Start powermetrics process without -n qualifier
@@ -39,7 +66,7 @@ def collect_data():
         # Append parsed data to measurements list
         with lock:
             measurements.append(parsed_data)
-            if len(measurements) > MAX_MEASUREMENTS:
+            if len(measurements) > W_CHART:
                 measurements.pop(0)
 
 def parse_powermetrics_data(data):
@@ -57,9 +84,8 @@ class PowerMetricsHandler(BaseHTTPRequestHandler):
         with lock:
             data = measurements[:]
         self.send_response(200)
-        self.send_header('Content-type', 'application/json')
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode())
+        self.wfile.write(plot_bar_chart(data).encode())
 
 # Start HTTP server
 def start_server():
