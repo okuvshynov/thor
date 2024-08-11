@@ -6,7 +6,7 @@ import threading
 import time
 
 # Configuration
-MAX_MEASUREMENTS = 100  # Maximum number of measurements to store
+MAX_MEASUREMENTS = 15  # Maximum number of measurements to store
 
 # Global variables
 measurements = []  # List to store measurements
