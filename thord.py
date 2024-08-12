@@ -4,13 +4,15 @@ import plistlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 import time
+from urllib.parse import urlparse, parse_qs
 
 # Configuration
-W_CHART = 15  # Maximum number of measurements to store
+W_CHART = 8  # Maximum number of measurements to store
 
 # Global variables
 measurements = {'gpu': [], 'ecpu': [], 'pcpu': [], 'wired': [], 'rss': []}
 lock = threading.Lock()  # Lock to synchronize access to measurements
+title = {'gpu': 'G:', 'ecpu': 'E:', 'pcpu': 'P:', 'wired': 'W:', 'rss': 'R:'}
 
 def init_mem():
     page_size_out = subprocess.check_output(['pagesize']).decode('utf-8')
@@ -50,7 +52,7 @@ def get_vm_stat():
 
 def gen_blocks():
     # shades of green
-    colors = [231, 157, 40, 28]
+    colors = [2, 28, 222, 196]
     blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
     result = []
 
@@ -76,7 +78,7 @@ def plot_bar_chart(values, metric):
         if i == len(values) - 1:
             percentage = int(value * 100)
             out.append(f"#[default]{percentage:3d}%")
-    return f"{metric.upper()}:" + "".join(out)
+    return f"{title[metric]}" + "".join(out)
 
 def collect_data():
     # Start powermetrics process without -n qualifier
@@ -148,17 +150,29 @@ def start_data_collection():
 # HTTP request handler
 class PowerMetricsHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        metric = self.path.strip('/')
-        if metric not in measurements:
-            self.send_response(404)
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+
+        metrics = query_params.get('metric', [])
+        if not metrics:
+            self.send_response(400)
             self.end_headers()
-            self.wfile.write(b"Metric not found")
+            self.wfile.write(b"No metrics specified")
             return
-        with lock:
-            data = measurements[metric][:]
+
+        results = []
+        for metric in metrics:
+            if metric not in measurements:
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(f"Metric {metric} not found".encode())
+                return
+            with lock:
+                data = measurements[metric][:]
+            results.append(plot_bar_chart(data, metric))
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(plot_bar_chart(data, metric).encode())
+        self.wfile.write('|'.join(results).encode())
 
 # Start HTTP server
 def start_server():
