@@ -91,9 +91,9 @@ def parse_powermetrics_data(data):
             pcpu_n_cpus += n_cpus
 
     if ecpu_n_cpus > 0:
-        res['ecpu'] = ecpu_idle / ecpu_n_cpus
+        res['ecpu'] = 1.0 - ecpu_idle / ecpu_n_cpus
     if pcpu_n_cpus > 0:
-        res['pcpu'] = pcpu_idle / pcpu_n_cpus
+        res['pcpu'] = 1.0 - pcpu_idle / pcpu_n_cpus
 
     return res
 
