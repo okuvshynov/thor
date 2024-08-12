@@ -1,4 +1,4 @@
 #!/bin/bash
 
-METRICS=$(curl -s http://localhost:8000/metrics)
-echo "${METRICS}"
+GPU=$(curl -s http://localhost:8000/gpu/)
+echo "${GPU}"

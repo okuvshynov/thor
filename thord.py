@@ -9,7 +9,7 @@ import time
 W_CHART = 15  # Maximum number of measurements to store
 
 # Global variables
-measurements = []  # List to store measurements
+measurements = {'gpu': []}  # List to store measurements
 lock = threading.Lock()  # Lock to synchronize access to measurements
 
 def gen_blocks():
@@ -25,7 +25,7 @@ def gen_blocks():
 
     return result
 
-def plot_bar_chart(values):
+def plot_bar_chart(values, metric):
     blocks = gen_blocks()
 
     out = []
@@ -37,7 +37,7 @@ def plot_bar_chart(values):
         block_index = int(value * len(blocks))
         block = blocks[min(block_index, len(blocks) - 1)]
         out.append(block)
-    return "G:" + "".join(out)
+    return f"{metric.upper()}:" + "".join(out)
 
 def collect_data():
     # Start powermetrics process without -n qualifier
@@ -65,9 +65,9 @@ def collect_data():
 
         # Append parsed data to measurements list
         with lock:
-            measurements.append(parsed_data)
-            if len(measurements) > W_CHART:
-                measurements.pop(0)
+            measurements['gpu'].append(parsed_data)
+            if len(measurements['gpu']) > W_CHART:
+                measurements['gpu'].pop(0)
 
 def parse_powermetrics_data(data):
     return 1.0 - data['gpu']['idle_ratio']
@@ -81,11 +81,17 @@ def start_data_collection():
 # HTTP request handler
 class PowerMetricsHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        metric = self.path.strip('/')
+        if metric not in measurements:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Metric not found")
+            return
         with lock:
-            data = measurements[:]
+            data = measurements[metric][:]
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(plot_bar_chart(data).encode())
+        self.wfile.write(plot_bar_chart(data, metric).encode())
 
 # Start HTTP server
 def start_server():
