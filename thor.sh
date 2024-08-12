@@ -4,7 +4,7 @@ STATE_FILE="/tmp/thor_state.txt"
 # File to override the current state
 OVERRIDE_FILE="/tmp/thor_override.txt"
 # Possible values to rotate between
-VALUES=("gpu" "ecpu" "pcpu")
+VALUES=("gpu" "ecpu" "pcpu" "rss")
 # Check if the override file exists
 if [ -f "$OVERRIDE_FILE" ]; then
   CURRENT_STATE=$(cat "$OVERRIDE_FILE")

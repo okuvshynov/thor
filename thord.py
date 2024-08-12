@@ -9,8 +9,44 @@ import time
 W_CHART = 15  # Maximum number of measurements to store
 
 # Global variables
-measurements = {'gpu': [], 'ecpu': [], 'pcpu': []}
+measurements = {'gpu': [], 'ecpu': [], 'pcpu': [], 'wired': [], 'rss': []}
 lock = threading.Lock()  # Lock to synchronize access to measurements
+
+def init_mem():
+    page_size_out = subprocess.check_output(['pagesize']).decode('utf-8')
+    page_size = int(page_size_out.strip())
+    mem_size_out = subprocess.check_output(['sysctl', 'hw.memsize']).decode('utf-8')
+    mem_size = int(mem_size_out.split(':')[-1].strip())
+    return page_size, mem_size
+
+page_size, mem_size = init_mem()
+
+def get_vm_stat():
+    """
+    Call vm_stat and parse its output to return active and wired memory in bytes.
+    """
+    # Call vm_stat and capture its output
+    output = subprocess.check_output(['vm_stat']).decode('utf-8')
+
+    # Split the output into lines
+    lines = output.split('\n')
+
+    # Initialize variables to store active and wired memory
+    active_pages = 0
+    wired_pages = 0
+
+    # Iterate over the lines to find the active and wired memory
+    for line in lines:
+        if 'Pages active:' in line:
+            active_pages = int(line.split(':')[-1].strip().rstrip('.'))
+        elif 'Pages wired down:' in line:
+            wired_pages = int(line.split(':')[-1].strip().rstrip('.'))
+
+    # Calculate active and wired memory in bytes
+    active = 1.0 * active_pages * page_size / mem_size
+    wired = 1.0 * wired_pages * page_size / mem_size
+
+    return active + wired, wired
 
 def gen_blocks():
     # shades of green
@@ -63,12 +99,14 @@ def collect_data():
         # Remove the parsed plist data from the buffer
         buffer = buffer[plist_end_pos + len(b'</plist>'):]
 
+        parsed_data['rss'], parsed_data['wired'] = get_vm_stat()
         # Append parsed data to measurements list
         with lock:
             for k, v in parsed_data.items():
                 measurements[k].append(v)
                 if len(measurements[k]) > W_CHART:
                     measurements[k].pop(0)
+
 
 def parse_powermetrics_data(data):
     res = {'gpu': 1.0 - data['gpu']['idle_ratio']}
