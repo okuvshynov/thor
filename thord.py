@@ -9,7 +9,7 @@ import time
 W_CHART = 15  # Maximum number of measurements to store
 
 # Global variables
-measurements = {'gpu': []}  # List to store measurements
+measurements = {'gpu': [], 'ecpu': [], 'pcpu': []}
 lock = threading.Lock()  # Lock to synchronize access to measurements
 
 def gen_blocks():
@@ -41,7 +41,7 @@ def plot_bar_chart(values, metric):
 
 def collect_data():
     # Start powermetrics process without -n qualifier
-    process = subprocess.Popen(['sudo', 'powermetrics', '-i', '500', '-f', 'plist', '-s', 'gpu_power'], stdout=subprocess.PIPE)
+    process = subprocess.Popen(['sudo', 'powermetrics', '-i', '500', '-f', 'plist', '-s', 'gpu_power,cpu_power'], stdout=subprocess.PIPE)
 
     buffer = b''
     while True:
@@ -65,12 +65,38 @@ def collect_data():
 
         # Append parsed data to measurements list
         with lock:
-            measurements['gpu'].append(parsed_data)
-            if len(measurements['gpu']) > W_CHART:
-                measurements['gpu'].pop(0)
+            for k, v in parsed_data.items():
+                measurements[k].append(v)
+                if len(measurements[k]) > W_CHART:
+                    measurements[k].pop(0)
 
 def parse_powermetrics_data(data):
-    return 1.0 - data['gpu']['idle_ratio']
+    res = {'gpu': 1.0 - data['gpu']['idle_ratio']}
+    ecpu_idle = 0.0
+    ecpu_n_cpus = 0
+    pcpu_idle = 0.0
+    pcpu_n_cpus = 0
+
+    for cluster in data['processor']['clusters']:
+        n_cpus = len(cluster['cpus'])
+        idle   = 0.0
+        for cpu in cluster['cpus']:
+            idle += cpu['idle_ratio']
+
+        if cluster['name'].startswith('E'):
+            ecpu_idle += idle
+            ecpu_n_cpus += n_cpus
+        elif cluster['name'].startswith('P'):
+            pcpu_idle += idle
+            pcpu_n_cpus += n_cpus
+
+    if ecpu_n_cpus > 0:
+        res['ecpu'] = ecpu_idle / ecpu_n_cpus
+    if pcpu_n_cpus > 0:
+        res['pcpu'] = pcpu_idle / pcpu_n_cpus
+
+    return res
+
 
 # Start data collection in a separate thread
 def start_data_collection():
