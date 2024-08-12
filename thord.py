@@ -66,13 +66,16 @@ def plot_bar_chart(values, metric):
 
     out = []
 
-    for value in values:
+    for i, value in enumerate(values):
         if value < 0 or value > 1:
             raise ValueError("Value must be in range 0...1")
 
         block_index = int(value * len(blocks))
         block = blocks[min(block_index, len(blocks) - 1)]
         out.append(block)
+        if i == len(values) - 1:
+            percentage = int(value * 100)
+            out.append(f"#[default]{percentage:3d}%")
     return f"{metric.upper()}:" + "".join(out)
 
 def collect_data():
