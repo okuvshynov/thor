@@ -1,8 +1,6 @@
-import json
 import plistlib
 import subprocess
 import threading
-import time
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -83,6 +81,8 @@ def plot_bar_chart(values, metric):
     if padding_length > 0:
         padding = [' '] * padding_length
         out = padding + out
+    if len(values) == 0:
+        out.append(" n/a")
     return f"{title[metric]}" + "".join(out)
 
 def collect_data():
