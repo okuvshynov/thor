@@ -79,6 +79,10 @@ def plot_bar_chart(values, metric):
         if i == len(values) - 1:
             percentage = int(value * 100)
             out.append(f"#[default]{percentage:3d}%")
+    padding_length = W_CHART - len(values)
+    if padding_length > 0:
+        padding = [' '] * padding_length
+        out = padding + out
     return f"{title[metric]}" + "".join(out)
 
 def collect_data():
