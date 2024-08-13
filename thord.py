@@ -87,7 +87,7 @@ def plot_bar_chart(values, metric):
 
 def collect_data():
     # Start powermetrics process without -n qualifier
-    process = subprocess.Popen(['sudo', 'powermetrics', '-i', '500', '-f', 'plist', '-s', 'gpu_power,cpu_power'], stdout=subprocess.PIPE)
+    process = subprocess.Popen(['sudo', 'powermetrics', '-i', '2000', '-f', 'plist', '-s', 'gpu_power,cpu_power'], stdout=subprocess.PIPE)
 
     buffer = b''
     while True:
