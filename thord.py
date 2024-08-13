@@ -1,9 +1,10 @@
 import json
-import subprocess
 import plistlib
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import subprocess
 import threading
 import time
+
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
 # Configuration
@@ -52,14 +53,14 @@ def get_vm_stat():
 
 def gen_blocks():
     # shades of green
-    colors = [2, 28, 222, 196]
+    colors = ['colour2', 'colour28', 'colour22', '#003000']
     blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
     result = []
 
     for i in range(len(colors) - 1):
         color1, color2 = colors[i], colors[i + 1]
         for block in blocks:
-            result.append(f"#[fg=colour{color2},bg=colour{color1}]{block}")
+            result.append(f"#[fg={color2},bg={color1}]{block}")
 
     return result
 
