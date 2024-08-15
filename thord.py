@@ -76,7 +76,9 @@ def plot_bar_chart(values, metric):
         out.append(block)
         if i == len(values) - 1:
             percentage = int(value * 100)
-            out.append(f"#[default]{percentage:3d}%")
+            percentage_str = f'{percentage:3d}%%'
+            out.append(f"#[default]{percentage_str}")
+            print(out[-1])
     padding_length = W_CHART - len(values)
     if padding_length > 0:
         padding = [' '] * padding_length
@@ -87,7 +89,7 @@ def plot_bar_chart(values, metric):
 
 def collect_data():
     # Start powermetrics process without -n qualifier
-    process = subprocess.Popen(['sudo', 'powermetrics', '-i', '2000', '-f', 'plist', '-s', 'gpu_power,cpu_power'], stdout=subprocess.PIPE)
+    process = subprocess.Popen(['sudo', 'powermetrics', '-i', '1000', '-f', 'plist', '-s', 'gpu_power,cpu_power'], stdout=subprocess.PIPE)
 
     buffer = b''
     while True:
