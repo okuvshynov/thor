@@ -1,16 +1,49 @@
 import plistlib
 import subprocess
 import threading
+import secrets
+import string
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
+
+def generate_random_id(length=8):
+    """Generate a random alphanumeric ID of a specified length."""
+    characters = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(characters) for _ in range(length))
 
 # Configuration
 W_CHART = 8  # Maximum number of measurements to store
 
 # Global variables
-measurements = {'gpu': [], 'ecpu': [], 'pcpu': [], 'wired': [], 'rss': []}
-lock = threading.Lock()  # Lock to synchronize access to measurements
+class Measurements:
+    def __init__(self):
+        self.data = {'gpu': [], 'ecpu': [], 'pcpu': [], 'wired': [], 'rss': []}
+        self.last_id = None
+        self.lock = threading.Lock()  # Lock to synchronize access to measurements/id
+        self.condition = threading.Condition(self.lock)  # Condition variable for waiting
+
+    def append(self, slice):
+        with self.condition:
+            for k, v in slice.items():
+                self.data[k].append(v)
+                if len(self.data[k]) > W_CHART:
+                    self.data[k].pop(0)
+            self.last_id = generate_random_id()
+            self.condition.notify_all()
+
+    def get(self):
+        with self.lock:
+            return {k: v[:] for k, v in self.data.items()}
+
+    def wait(self, id):
+        with self.condition:
+            while self.last_id == id:
+                self.condition.wait()  # Wait until the condition is notified
+            return self.last_id, {k: v[:] for k, v in self.data.items()}
+
+measurements = Measurements()
+
 title = {'gpu': 'G:', 'ecpu': 'E:', 'pcpu': 'P:', 'wired': 'W:', 'rss': 'R:'}
 
 def init_mem():
@@ -78,7 +111,6 @@ def plot_bar_chart(values, metric):
             percentage = int(value * 100)
             percentage_str = f'{percentage:3d}%%'
             out.append(f"#[default]{percentage_str}")
-            print(out[-1])
     padding_length = W_CHART - len(values)
     if padding_length > 0:
         padding = [' '] * padding_length
@@ -112,12 +144,7 @@ def collect_data():
         buffer = buffer[plist_end_pos + len(b'</plist>'):]
 
         parsed_data['rss'], parsed_data['wired'] = get_vm_stat()
-        # Append parsed data to measurements list
-        with lock:
-            for k, v in parsed_data.items():
-                measurements[k].append(v)
-                if len(measurements[k]) > W_CHART:
-                    measurements[k].pop(0)
+        measurements.append(parsed_data)
 
 
 def parse_powermetrics_data(data):
@@ -154,6 +181,16 @@ def start_data_collection():
     thread.daemon = True  # Set as daemon thread so it exits when main thread exits
     thread.start()
 
+def plot(metrics, last_id):
+    new_id, data = measurements.wait(last_id)
+    results = []
+    for metric in metrics:
+        if metric not in data:
+            results.append(f"{metric} not found")
+        else:
+            results.append(plot_bar_chart(data[metric], metric))
+    return new_id, results
+
 # HTTP request handler
 class PowerMetricsHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -161,31 +198,26 @@ class PowerMetricsHandler(BaseHTTPRequestHandler):
         query_params = parse_qs(parsed_path.query)
 
         metrics = query_params.get('metric', [])
+        last = query_params.get('last', [])
+        last = last[0] if last else None
         if not metrics:
             self.send_response(400)
             self.end_headers()
             self.wfile.write(b"No metrics specified")
             return
 
-        results = []
-        for metric in metrics:
-            if metric not in measurements:
-                self.send_response(404)
-                self.end_headers()
-                self.wfile.write(f"Metric {metric} not found".encode())
-                return
-            with lock:
-                data = measurements[metric][:]
-            results.append(plot_bar_chart(data, metric))
+        new_id, results = plot(metrics, last)
+        chart = '|'.join(results)
         self.send_response(200)
         self.end_headers()
-        self.wfile.write('|'.join(results).encode())
+        self.wfile.write(f'{new_id}\n'.encode())
+        self.wfile.write(f'{chart}\n'.encode())
 
 # Start HTTP server
 def start_server():
     server_address = ('', 8000)
     httpd = HTTPServer(server_address, PowerMetricsHandler)
-    print('Starting httpd on port 8000...')
+    #print('Starting httpd on port 8000...')
     httpd.serve_forever()
 
 if __name__ == '__main__':
