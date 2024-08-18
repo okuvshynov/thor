@@ -1,5 +1,3 @@
-import plistlib
-import subprocess
 import threading
 import secrets
 import string
@@ -9,21 +7,23 @@ from urllib.parse import urlparse, parse_qs
 
 from macos_reader import collect_data
 
+
 def generate_random_id(length=8):
     """Generate a random alphanumeric ID of a specified length."""
     characters = string.ascii_letters + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
-# Configuration
+
 W_CHART = 8  # Maximum number of measurements to store
+
 
 # Global variables
 class Measurements:
     def __init__(self):
         self.data = {'gpu': [], 'ecpu': [], 'pcpu': [], 'wired': [], 'rss': []}
         self.last_id = None
-        self.lock = threading.Lock()  # Lock to synchronize access to measurements/id
-        self.condition = threading.Condition(self.lock)  # Condition variable for waiting
+        self.lock = threading.Lock()
+        self.condition = threading.Condition(self.lock)
 
     def append(self, slice):
         with self.condition:
@@ -44,8 +44,8 @@ class Measurements:
                 self.condition.wait()  # Wait until the condition is notified
             return self.last_id, {k: v[:] for k, v in self.data.items()}
 
-measurements = Measurements()
 
+measurements = Measurements()
 title = {'gpu': 'G:', 'ecpu': 'E:', 'pcpu': 'P:', 'wired': 'W:', 'rss': 'R:'}
 
 
@@ -61,6 +61,7 @@ def gen_blocks():
             result.append(f"#[fg={color2},bg={color1}]{block}")
 
     return result
+
 
 def plot_bar_chart(values, metric):
     blocks = gen_blocks()
@@ -86,11 +87,13 @@ def plot_bar_chart(values, metric):
         out.append(" n/a")
     return f"{title[metric]}" + "".join(out)
 
+
 # Start data collection in a separate thread
 def start_data_collection():
     thread = threading.Thread(target=collect_data, args=(measurements, ))
-    thread.daemon = True  # Set as daemon thread so it exits when main thread exits
+    thread.daemon = True
     thread.start()
+
 
 def plot(metrics, last_id):
     new_id, data = measurements.wait(last_id)
@@ -101,6 +104,7 @@ def plot(metrics, last_id):
         else:
             results.append(plot_bar_chart(data[metric], metric))
     return new_id, results
+
 
 # HTTP request handler
 class PowerMetricsHandler(BaseHTTPRequestHandler):
@@ -124,12 +128,13 @@ class PowerMetricsHandler(BaseHTTPRequestHandler):
         self.wfile.write(f'{new_id}\n'.encode())
         self.wfile.write(f'{chart}\n'.encode())
 
+
 # Start HTTP server
 def start_server():
     server_address = ('', 8000)
     httpd = HTTPServer(server_address, PowerMetricsHandler)
-    #print('Starting httpd on port 8000...')
     httpd.serve_forever()
+
 
 if __name__ == '__main__':
     start_data_collection()

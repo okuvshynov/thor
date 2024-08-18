@@ -1,21 +1,21 @@
 import plistlib
 import subprocess
-import threading
-import secrets
-import string
+
 
 def init_mem():
-    page_size_out = subprocess.check_output(['pagesize']).decode('utf-8')
-    page_size = int(page_size_out.strip())
-    mem_size_out = subprocess.check_output(['sysctl', 'hw.memsize']).decode('utf-8')
-    mem_size = int(mem_size_out.split(':')[-1].strip())
+    page_size_out = subprocess.check_output(['pagesize'])
+    page_size = int(page_size_out.decode('utf-8').strip())
+    mem_size_out = subprocess.check_output(['sysctl', 'hw.memsize'])
+    mem_size = int(mem_size_out.decode('utf-8').split(':')[-1].strip())
     return page_size, mem_size
+
 
 page_size, mem_size = init_mem()
 
+
 def get_vm_stat():
     """
-    Call vm_stat and parse its output to return active and wired memory in bytes.
+    Call vm_stat and parse its output to return active and wired memory.
     """
     # Call vm_stat and capture its output
     output = subprocess.check_output(['vm_stat']).decode('utf-8')
@@ -50,7 +50,7 @@ def parse_powermetrics_data(data):
 
     for cluster in data['processor']['clusters']:
         n_cpus = len(cluster['cpus'])
-        idle   = 0.0
+        idle = 0.0
         for cpu in cluster['cpus']:
             idle += cpu['idle_ratio']
 
@@ -71,7 +71,15 @@ def parse_powermetrics_data(data):
 
 def collect_data(measurements):
     # Start powermetrics process without -n qualifier
-    process = subprocess.Popen(['sudo', 'powermetrics', '-i', '1000', '-f', 'plist', '-s', 'gpu_power,cpu_power'], stdout=subprocess.PIPE)
+    process = subprocess.Popen(
+        [
+            'sudo', 'powermetrics',
+            '-i', '1000',
+            '-f', 'plist',
+            '-s', 'gpu_power,cpu_power'
+        ],
+        stdout=subprocess.PIPE
+    )
 
     buffer = b''
     while True:
@@ -95,5 +103,3 @@ def collect_data(measurements):
 
         parsed_data['rss'], parsed_data['wired'] = get_vm_stat()
         measurements.append(parsed_data)
-
-
