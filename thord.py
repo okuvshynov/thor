@@ -5,7 +5,7 @@ import string
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
-from macos_reader import collect_data
+from macos_reader import MacOSReader
 
 
 def generate_random_id(length=8):
@@ -90,7 +90,8 @@ def plot_bar_chart(values, metric):
 
 # Start data collection in a separate thread
 def start_data_collection():
-    thread = threading.Thread(target=collect_data, args=(measurements, ))
+    reader = MacOSReader()
+    thread = threading.Thread(target=reader.start, args=(measurements, ))
     thread.daemon = True
     thread.start()
 
