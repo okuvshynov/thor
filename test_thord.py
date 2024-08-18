@@ -1,6 +1,6 @@
 import unittest
 
-from thord import generate_random_id
+from measurements import generate_random_id
 
 
 class TestGenerateRandomID(unittest.TestCase):

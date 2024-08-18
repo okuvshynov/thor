@@ -1,51 +1,13 @@
-import threading
-import secrets
-import string
-
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from threading import Thread
 from urllib.parse import urlparse, parse_qs
 
 from macos_reader import MacOSReader
-
-
-def generate_random_id(length=8):
-    """Generate a random alphanumeric ID of a specified length."""
-    characters = string.ascii_letters + string.digits
-    return ''.join(secrets.choice(characters) for _ in range(length))
+from measurements import Measurements
 
 
 W_CHART = 8  # Maximum number of measurements to store
-
-
-# Global variables
-class Measurements:
-    def __init__(self):
-        self.data = {'gpu': [], 'ecpu': [], 'pcpu': [], 'wired': [], 'rss': []}
-        self.last_id = None
-        self.lock = threading.Lock()
-        self.condition = threading.Condition(self.lock)
-
-    def append(self, slice):
-        with self.condition:
-            for k, v in slice.items():
-                self.data[k].append(v)
-                if len(self.data[k]) > W_CHART:
-                    self.data[k].pop(0)
-            self.last_id = generate_random_id()
-            self.condition.notify_all()
-
-    def get(self):
-        with self.lock:
-            return {k: v[:] for k, v in self.data.items()}
-
-    def wait(self, id):
-        with self.condition:
-            while self.last_id == id:
-                self.condition.wait()  # Wait until the condition is notified
-            return self.last_id, {k: v[:] for k, v in self.data.items()}
-
-
-measurements = Measurements()
+measurements = Measurements(W_CHART)
 title = {'gpu': 'G:', 'ecpu': 'E:', 'pcpu': 'P:', 'wired': 'W:', 'rss': 'R:'}
 
 
@@ -91,7 +53,7 @@ def plot_bar_chart(values, metric):
 # Start data collection in a separate thread
 def start_data_collection():
     reader = MacOSReader()
-    thread = threading.Thread(target=reader.start, args=(measurements, ))
+    thread = Thread(target=reader.start, args=(measurements, ))
     thread.daemon = True
     thread.start()
 
