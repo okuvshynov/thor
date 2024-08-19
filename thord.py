@@ -92,7 +92,6 @@ class PowerMetricsHandler(BaseHTTPRequestHandler):
         self.wfile.write(f'{chart}\n'.encode())
 
 
-# Start HTTP server
 def start_server():
     server_address = ('', 8000)
     httpd = HTTPServer(server_address, PowerMetricsHandler)

@@ -2,7 +2,20 @@ import unittest
 import threading
 import time
 
-from measurements import Measurements
+from measurements import Measurements, generate_random_id
+
+
+class TestGenerateRandomID(unittest.TestCase):
+    def test_length(self):
+        length = 10
+        generated_id = generate_random_id(length)
+        self.assertEqual(len(generated_id), length)
+
+    def test_uniqueness(self):
+        length = 8
+        id1 = generate_random_id(length)
+        id2 = generate_random_id(length)
+        self.assertNotEqual(id1, id2)
 
 
 class TestMeasurements(unittest.TestCase):
@@ -35,7 +48,11 @@ class TestMeasurements(unittest.TestCase):
         thread = threading.Thread(target=append_data)
         thread.start()
         initial_id = measurements.last_id
+        start = time.time()
         new_id, data = measurements.wait(initial_id)
+        duration = time.time() - start
+        self.assertGreater(duration, 0.1)
+        self.assertLess(duration, 1.0)
         self.assertNotEqual(initial_id, new_id)
         expected = {k: [v] for k, v in d1.items()}
         self.assertEqual(data, expected)
