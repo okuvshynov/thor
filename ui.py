@@ -1,26 +1,25 @@
-color_green6 = ["#ffffff", "#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2c"]
-color_green5 = ["#ffffff", "#edf8e9","#bae4b3","#74c476","#238b45"]
-color_yor6 = ["#ffffff", "#ffffb2","#fed976","#feb24c","#fd8d3c","#f03b20","#bd0026"]
+color_green4 = ['colour2', 'colour28', 'colour22', '#003000']
+
+
+def get_blocks(colors):
+    blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
+    res = []
+
+    for i in range(len(colors) - 1):
+        color1, color2 = colors[i], colors[i + 1]
+        j = 0 if i == 0 else 1
+        for block in blocks[j:]:
+            res.append(f"#[fg={color2},bg={color1}]{block}")
+
+    return res
+
 
 class UI:
-    def __init__(self, width):
-        colors = color_yor6
-        # TODO: make configurable
-        #colors = ['colour2', 'colour28', 'colour22', '#003000']
-        #blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
-        # TODO -- this way 100% won't be complete.
-        # need to add one block for the last
-        blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇']
-        self.blocks = []
-
-        # TODO: add check that we have >= 2 colors
-        for i in range(len(colors) - 1):
-            color1, color2 = colors[i], colors[i + 1]
-            for block in blocks:
-                self.blocks.append(f"#[fg={color2},bg={color1}]{block}")
+    def __init__(self, width, colors=color_green4):
         self.width = width
         # resetting fg to default and bg to color 0
         self.style = f"#[default,bg={colors[0]}]"
+        self.blocks = get_blocks(colors)
 
     def plot_bar_chart(self, values, title):
         blocks = self.blocks
