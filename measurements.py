@@ -2,6 +2,8 @@ import threading
 import secrets
 import string
 
+from collections import defaultdict
+
 
 def generate_random_id(length=8):
     """Generate a random alphanumeric ID of a specified length."""
@@ -11,7 +13,7 @@ def generate_random_id(length=8):
 
 class Measurements:
     def __init__(self, width=8):
-        self.data = {'gpu': [], 'ecpu': [], 'pcpu': [], 'wired': [], 'rss': []}
+        self.data = defaultdict(list)
         self.last_id = None
         self.lock = threading.Lock()
         self.condition = threading.Condition(self.lock)

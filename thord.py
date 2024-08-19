@@ -8,6 +8,7 @@ from ui import UI
 
 
 W_CHART = 8  # Maximum number of measurements to store
+PORT = 8000
 measurements = Measurements(W_CHART)
 title = {'gpu': 'G:', 'ecpu': 'E:', 'pcpu': 'P:', 'wired': 'W:', 'rss': 'R:'}
 ui = UI(W_CHART)
@@ -56,7 +57,7 @@ class PowerMetricsHandler(BaseHTTPRequestHandler):
 
 
 def start_server():
-    server_address = ('', 8000)
+    server_address = ('', PORT)
     httpd = HTTPServer(server_address, PowerMetricsHandler)
     httpd.serve_forever()
 
