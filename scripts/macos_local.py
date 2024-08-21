@@ -18,6 +18,7 @@ def get_tmux_opt(name, default):
 
 
 DEFAULT_WIDTH = 8
+DEFAULT_COLORS = 'colour2,colour28,colour22,#003000'
 DATA_SIZE = 256  # Maximum number of measurements to store
 DO_REFRESH = True
 
@@ -34,7 +35,7 @@ def start_data_collection():
     thread.start()
 
 
-def plot(metrics, last_id, width):
+def plot(metrics, last_id, width, colors):
     new_id, data = measurements.wait(last_id)
     results = []
     for metric in metrics:
@@ -46,7 +47,7 @@ def plot(metrics, last_id, width):
                 values = values[-width:]
             else:
                 values = [0.0] * (width - len(values)) + values
-            results.append(ui.plot_bar_chart(values))
+            results.append(ui.plot_bar_chart(values, colors))
     return new_id, results
 
 
@@ -62,7 +63,8 @@ def loop():
     metrics = METRICS
     while True:
         width = int(get_tmux_opt('width', DEFAULT_WIDTH))
-        curr_id, charts = plot(metrics, curr_id, width)
+        colors = get_tmux_opt('colors', DEFAULT_COLORS).split(',')
+        curr_id, charts = plot(metrics, curr_id, width, colors)
         for metric, chart in zip(metrics, charts):
             filename = f'/tmp/thor_metric_{metric}_data'
             with open(filename, 'w') as wfile:

@@ -1,6 +1,3 @@
-color_green4 = ['colour2', 'colour28', 'colour22', '#003000']
-
-
 def get_blocks(colors):
     blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
     res = []
@@ -15,12 +12,15 @@ def get_blocks(colors):
 
 
 class UI:
-    def __init__(self, colors=color_green4):
-        # resetting fg to default and bg to color 0
-        self.style = f"#[default,bg={colors[0]}]"
-        self.blocks = get_blocks(colors)
+    def __init__(self):
+        self.colors = None
 
-    def plot_bar_chart(self, values):
+    def plot_bar_chart(self, values, colors):
+        if colors != self.colors:
+            self.style = f"#[default,bg={colors[0]}]"
+            self.blocks = get_blocks(colors)
+            self.colors = colors
+
         blocks = self.blocks
 
         out = []
