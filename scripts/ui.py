@@ -35,7 +35,7 @@ class UI:
             out.append(block)
             if i == len(values) - 1:
                 percentage = int(value * 100)
-                percentage_str = f'{percentage:3d}%%'
+                percentage_str = f'{percentage:3d}%'
                 out.append(f"{self.style}{percentage_str}")
         padding_length = self.width - len(values)
         if padding_length > 0:
