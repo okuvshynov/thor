@@ -7,21 +7,20 @@
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 thor_placeholders=(
-    "\#{thor_ecpu}",
-    "\#{thor_pcpu}",
-    "\#{thor_gpu}",
-    "\#{thor_rss}",
+    "\#{thor_ecpu}"
+    "\#{thor_pcpu}"
+    "\#{thor_gpu}"
+    "\#{thor_rss}"
     "\#{thor_wired}"
 )
 
 thor_commands=(
-    "#($CURRENT_DIR/scripts/metric.sh ecpu)",
-    "#($CURRENT_DIR/scripts/metric.sh pcpu)",
-    "#($CURRENT_DIR/scripts/metric.sh gpu)",
-    "#($CURRENT_DIR/scripts/metric.sh rss)",
+    "#($CURRENT_DIR/scripts/metric.sh ecpu)"
+    "#($CURRENT_DIR/scripts/metric.sh pcpu)"
+    "#($CURRENT_DIR/scripts/metric.sh gpu)"
+    "#($CURRENT_DIR/scripts/metric.sh rss)"
     "#($CURRENT_DIR/scripts/metric.sh wired)"
 )
-
 
 do_expand() {
     local res="$1"
@@ -36,9 +35,7 @@ update_tmux_option() {
     local option_value
     local new_option_value
     option=$1
-    echo $option
     option_value="$(tmux show-option -gqv "$option")"
-    echo $option_value
     new_value=$(do_expand "$option_value")
     echo $new_value
     tmux set-option -gq "$option" "$new_value"

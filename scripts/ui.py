@@ -21,7 +21,7 @@ class UI:
         self.style = f"#[default,bg={colors[0]}]"
         self.blocks = get_blocks(colors)
 
-    def plot_bar_chart(self, values, title):
+    def plot_bar_chart(self, values):
         blocks = self.blocks
 
         out = []
@@ -43,4 +43,4 @@ class UI:
             out = padding + out
         if len(values) == 0:
             out.append(" n/a")
-        return f"{self.style}{title}" + "".join(out)
+        return "".join(out) + "#[default]"
