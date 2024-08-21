@@ -12,7 +12,7 @@ def generate_random_id(length=8):
 
 
 class Measurements:
-    def __init__(self, width=8):
+    def __init__(self, width):
         self.data = defaultdict(list)
         self.last_id = None
         self.lock = threading.Lock()

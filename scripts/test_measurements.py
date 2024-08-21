@@ -20,7 +20,7 @@ class TestGenerateRandomID(unittest.TestCase):
 
 class TestMeasurements(unittest.TestCase):
     def test_append(self):
-        measurements = Measurements()
+        measurements = Measurements(width=8)
         d = {'gpu': 1, 'ecpu': 2, 'pcpu': 3, 'wired': 4, 'rss': 5}
         measurements.append(d)
         expected = {k: [v] for k, v in d.items()}
@@ -39,7 +39,7 @@ class TestMeasurements(unittest.TestCase):
         self.assertEqual(measurements.get(), expected)
 
     def test_wait(self):
-        measurements = Measurements()
+        measurements = Measurements(width=8)
         d1 = {'gpu': 1, 'ecpu': 2, 'pcpu': 3, 'wired': 4, 'rss': 5}
 
         def append_data():
@@ -59,7 +59,7 @@ class TestMeasurements(unittest.TestCase):
         thread.join()
 
     def test_multithreading(self):
-        measurements = Measurements()
+        measurements = Measurements(width=8)
         d1 = {'gpu': 1, 'ecpu': 2, 'pcpu': 3, 'wired': 4, 'rss': 5}
         d2 = {'gpu': 6, 'ecpu': 7, 'pcpu': 8, 'wired': 9, 'rss': 10}
 

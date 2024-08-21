@@ -15,8 +15,7 @@ def get_blocks(colors):
 
 
 class UI:
-    def __init__(self, width, colors=color_green4):
-        self.width = width
+    def __init__(self, colors=color_green4):
         # resetting fg to default and bg to color 0
         self.style = f"#[default,bg={colors[0]}]"
         self.blocks = get_blocks(colors)
@@ -37,10 +36,6 @@ class UI:
                 percentage = int(value * 100)
                 percentage_str = f'{percentage:3d}%'
                 out.append(f"{self.style}{percentage_str}")
-        padding_length = self.width - len(values)
-        if padding_length > 0:
-            padding = [' '] * padding_length
-            out = padding + out
         if len(values) == 0:
             out.append(" n/a")
         return "".join(out) + "#[default]"
