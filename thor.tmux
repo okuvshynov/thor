@@ -37,10 +37,8 @@ update_tmux_option() {
     option=$1
     option_value="$(tmux show-option -gqv "$option")"
     new_value=$(do_expand "$option_value")
-    echo $new_value
     tmux set-option -gq "$option" "$new_value"
 }
 
 update_tmux_option "status-right"
 update_tmux_option "status-left"
-
