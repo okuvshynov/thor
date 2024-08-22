@@ -24,6 +24,7 @@ def get_colorscheme():
     bands = int(get_tmux_opt('color_bands', 4))
     return to_scheme(start, end, bands)
 
+
 DEFAULT_WIDTH = 8
 DEFAULT_COLORS = 'colour2,colour28,colour22,#003000'
 DATA_SIZE = 256  # Maximum number of measurements to store

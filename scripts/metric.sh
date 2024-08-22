@@ -18,6 +18,5 @@ get_status_data() {
     fi
 }
 
-#start_background_process
+start_background_process
 get_status_data
-
