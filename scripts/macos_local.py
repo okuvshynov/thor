@@ -5,6 +5,7 @@ from threading import Thread
 from macos_reader import MacOSReader
 from measurements import Measurements
 from horizon import Horizon
+from colors import to_scheme
 
 
 def get_tmux_opt(name, default):
@@ -16,6 +17,12 @@ def get_tmux_opt(name, default):
     else:
         return default
 
+
+def get_colorscheme():
+    start = get_tmux_opt('color_start', '#52bf37')
+    end = get_tmux_opt('color_end', '#003300')
+    bands = int(get_tmux_opt('color_bands', 4))
+    return to_scheme(start, end, bands)
 
 DEFAULT_WIDTH = 8
 DEFAULT_COLORS = 'colour2,colour28,colour22,#003000'
@@ -63,7 +70,7 @@ def loop():
     metrics = METRICS
     while True:
         width = int(get_tmux_opt('width', DEFAULT_WIDTH))
-        colors = get_tmux_opt('colors', DEFAULT_COLORS).split(',')
+        colors = get_colorscheme()
         curr_id, charts = plot(metrics, curr_id, width, colors)
         for metric, chart in zip(metrics, charts):
             filename = f'/tmp/thor_metric_{metric}_data'
