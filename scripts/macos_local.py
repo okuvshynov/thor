@@ -32,13 +32,11 @@ DO_REFRESH = True
 
 measurements = Measurements(DATA_SIZE)
 horizon = Horizon()
-METRICS = ['gpu', 'rss', 'wired', 'ecpu', 'pcpu']
-
+reader = create_reader()
 
 # Start data collection in a separate thread
 def start_data_collection():
     # TODO: pass some options here
-    reader = create_reader()
     thread = Thread(target=reader.start, args=(measurements, ))
     thread.daemon = True
     thread.start()
@@ -61,7 +59,7 @@ def plot(metrics, last_id, width, colors):
 
 
 def cleanup_files():
-    for metric in METRICS:
+    for metric in reader.metrics():
         filename = f'/tmp/thor_metric_{metric}_data'
         if os.path.exists(filename):
             os.remove(filename)
@@ -69,7 +67,7 @@ def cleanup_files():
 
 def loop():
     curr_id = None
-    metrics = METRICS
+    metrics = reader.metrics()
     while True:
         width = int(get_tmux_opt('width', DEFAULT_WIDTH))
         colors = get_colorscheme()

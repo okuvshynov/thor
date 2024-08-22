@@ -12,6 +12,7 @@ thor_placeholders=(
     "\#{thor_gpu}"
     "\#{thor_rss}"
     "\#{thor_wired}"
+    "\#{thor_cpu}"
 )
 
 thor_commands=(
@@ -20,6 +21,7 @@ thor_commands=(
     "#($CURRENT_DIR/scripts/metric.sh gpu)"
     "#($CURRENT_DIR/scripts/metric.sh rss)"
     "#($CURRENT_DIR/scripts/metric.sh wired)"
+    "#($CURRENT_DIR/scripts/metric.sh cpu)"
 )
 
 do_expand() {
