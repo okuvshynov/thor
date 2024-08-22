@@ -4,7 +4,7 @@ from threading import Thread
 
 from macos_reader import MacOSReader
 from measurements import Measurements
-from ui import UI
+from horizon import Horizon
 
 
 def get_tmux_opt(name, default):
@@ -23,7 +23,7 @@ DATA_SIZE = 256  # Maximum number of measurements to store
 DO_REFRESH = True
 
 measurements = Measurements(DATA_SIZE)
-ui = UI()
+horizon = Horizon()
 METRICS = ['gpu', 'rss', 'wired', 'ecpu', 'pcpu']
 
 
@@ -47,7 +47,7 @@ def plot(metrics, last_id, width, colors):
                 values = values[-width:]
             else:
                 values = [0.0] * (width - len(values)) + values
-            results.append(ui.plot_bar_chart(values, colors))
+            results.append(horizon.plot(values, colors))
     return new_id, results
 
 

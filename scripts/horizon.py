@@ -1,4 +1,4 @@
-def get_blocks(colors):
+def gen_blocks(colors):
     blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
     res = []
 
@@ -11,14 +11,14 @@ def get_blocks(colors):
     return res
 
 
-class UI:
+class Horizon:
     def __init__(self):
         self.colors = None
 
-    def plot_bar_chart(self, values, colors):
+    def plot(self, values, colors):
         if colors != self.colors:
             self.style = f"#[default,bg={colors[0]}]"
-            self.blocks = get_blocks(colors)
+            self.blocks = gen_blocks(colors)
             self.colors = colors
 
         blocks = self.blocks
