@@ -2,10 +2,10 @@ import os
 import subprocess
 from threading import Thread
 
-from macos_reader import MacOSReader
 from measurements import Measurements
 from horizon import Horizon
 from colors import to_scheme
+from readers import create_reader
 
 
 def get_tmux_opt(name, default):
@@ -37,7 +37,8 @@ METRICS = ['gpu', 'rss', 'wired', 'ecpu', 'pcpu']
 
 # Start data collection in a separate thread
 def start_data_collection():
-    reader = MacOSReader()
+    # TODO: pass some options here
+    reader = create_reader()
     thread = Thread(target=reader.start, args=(measurements, ))
     thread.daemon = True
     thread.start()

@@ -1,6 +1,6 @@
 def interpolator(start, end):
     """
-    Returns a linear interpolation function that maps 
+    Returns a linear interpolation function that maps
     [0.0; 1.0] -> [start, end] where start and end are RGB color strings
     in the format '#RRGGBB'.
 

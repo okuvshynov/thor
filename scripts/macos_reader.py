@@ -3,7 +3,7 @@ import subprocess
 
 
 class MacOSReader:
-    def __init__(self):
+    def __init__(self, options):
         out = subprocess.check_output(['pagesize'])
         self.page_size = int(out.decode('utf-8').strip())
         out = subprocess.check_output(['sysctl', 'hw.memsize'])
