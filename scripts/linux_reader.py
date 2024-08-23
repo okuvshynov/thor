@@ -1,15 +1,36 @@
 import time
 
 
-METRICS = ['cpu']
+METRICS = ['cpu', 'rss']
 
 
 class LinuxReader:
     def __init__(self, options):
-        pass
+        self.total_memory = None
 
     def metrics(self):
         return METRICS
+
+    def read_rss(self):
+        if self.total_memory is None:
+            with open('/proc/meminfo', 'r') as f:
+                meminfo = f.readlines()
+                for line in meminfo:
+                    if line.startswith('MemTotal:'):
+                        self.total_memory = int(line.split()[1])
+                        break
+
+        # Read RSS usage from /proc/meminfo
+        with open('/proc/meminfo', 'r') as f:
+            meminfo = f.readlines()
+            rss = None
+            for line in meminfo:
+                if line.startswith('Active:'):
+                    rss = int(line.split()[1])
+                    break
+
+        # Both rss and total_memory are in KB
+        return 1.0 * rss / self.total_memory
 
     def start(self, measurements):
         prev_idle = -1
@@ -19,19 +40,16 @@ class LinuxReader:
                 cpu_stats = f.readline().split()[1:]
 
             cpu_stats = [int(stat) for stat in cpu_stats]
-            print(cpu_stats)
             total = sum(cpu_stats)
             idle = cpu_stats[3]
-            if prev_total > 0:
+            if prev_total >= 0:
                 diff_idle = idle - prev_idle
                 diff_total = total - prev_total
 
                 diff_usage = diff_total - diff_idle
                 usage = 1.0 * diff_usage / diff_total
 
-
-                print(usage)
-                measurements.append({'cpu': usage})
+                measurements.append({'cpu': usage, 'rss': self.read_rss()})
 
             prev_total = total
             prev_idle = idle

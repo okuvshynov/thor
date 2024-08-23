@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BG_SCRIPT="python3 $CURRENT_DIR/macos_local.py"
+BG_SCRIPT="python3 $CURRENT_DIR/thor.py"
 
 start_background_process() {
     if ! pgrep -f "$BG_SCRIPT" > /dev/null; then

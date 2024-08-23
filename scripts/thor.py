@@ -34,6 +34,7 @@ measurements = Measurements(DATA_SIZE)
 horizon = Horizon()
 reader = create_reader()
 
+
 # Start data collection in a separate thread
 def start_data_collection():
     # TODO: pass some options here
