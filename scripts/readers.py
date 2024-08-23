@@ -1,7 +1,7 @@
 import sys
 
 
-def create_reader(options=None):
+def create_reader(options={}):
     if sys.platform == "darwin":
         from macos_reader import MacOSReader
         return MacOSReader(options)

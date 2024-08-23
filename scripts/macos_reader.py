@@ -4,6 +4,7 @@ import subprocess
 
 class MacOSReader:
     def __init__(self, options):
+        self.interval_ms = options.get('interval_ms', 1000)
         out = subprocess.check_output(['pagesize'])
         self.page_size = int(out.decode('utf-8').strip())
         out = subprocess.check_output(['sysctl', 'hw.memsize'])
@@ -68,7 +69,7 @@ class MacOSReader:
         process = subprocess.Popen(
             [
                 'sudo', 'powermetrics',
-                '-i', '1000',
+                '-i', f'{self.interval_ms}',
                 '-f', 'plist',
                 '-s', 'gpu_power,cpu_power'
             ],

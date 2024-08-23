@@ -5,7 +5,8 @@ METRICS = ['cpu', 'rss']
 
 
 class LinuxReader:
-    def __init__(self, options):
+    def __init__(self, options={}):
+        self.interval = options.get('interval_ms', 5000) / 1000.0
         self.total_memory = None
 
     def metrics(self):
@@ -36,6 +37,7 @@ class LinuxReader:
         prev_idle = -1
         prev_total = -1
         while True:
+            start = time.monotonic()
             with open('/proc/stat', 'r') as f:
                 cpu_stats = f.readline().split()[1:]
 
@@ -54,4 +56,7 @@ class LinuxReader:
             prev_total = total
             prev_idle = idle
 
-            time.sleep(1)
+            duration = time.monotonic() - start
+            to_sleep = self.interval - duration
+            if to_sleep > 0:
+                time.sleep(to_sleep)
