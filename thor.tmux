@@ -13,6 +13,7 @@ thor_placeholders=(
     "\#{thor_rss}"
     "\#{thor_wired}"
     "\#{thor_cpu}"
+    "\#{thor_swap}"
 )
 
 thor_commands=(
@@ -22,6 +23,7 @@ thor_commands=(
     "#($CURRENT_DIR/scripts/metric.sh rss)"
     "#($CURRENT_DIR/scripts/metric.sh wired)"
     "#($CURRENT_DIR/scripts/metric.sh cpu)"
+    "#($CURRENT_DIR/scripts/metric.sh swap)"
 )
 
 do_expand() {

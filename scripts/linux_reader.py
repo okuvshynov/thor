@@ -1,7 +1,7 @@
 import time
 
 
-METRICS = ['cpu', 'rss']
+METRICS = ['cpu', 'rss', 'swap']
 
 
 class LinuxReader:
@@ -28,10 +28,14 @@ class LinuxReader:
             for line in meminfo:
                 if line.startswith('Active:'):
                     rss = int(line.split()[1])
-                    break
+                if line.startswith('SwapTotal:'):
+                    swap_total = int(line.split()[1])
+                if line.startswith('SwapFree:'):
+                    swap_free = int(line.split()[1])
 
+        swap_usage = 1.0 - 1.0 * swap_free / swap_total
         # Both rss and total_memory are in KB
-        return 1.0 * rss / self.total_memory
+        return 1.0 * rss / self.total_memory, swap_usage
 
     def start(self, measurements):
         prev_idle = -1
@@ -51,7 +55,9 @@ class LinuxReader:
                 diff_usage = diff_total - diff_idle
                 usage = 1.0 * diff_usage / diff_total
 
-                measurements.append({'cpu': usage, 'rss': self.read_rss()})
+                rss, swap = self.read_rss()
+
+                measurements.append({'cpu': usage, 'rss': rss, 'swap': swap})
 
             prev_total = total
             prev_idle = idle
