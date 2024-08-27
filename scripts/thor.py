@@ -2,10 +2,10 @@ import os
 import subprocess
 from threading import Thread
 
-from measurements import Measurements
-from horizon import Horizon
-from readers import create_reader
-from tmux import get_tmux_opt, get_colorscheme
+from lib.measurements import Measurements
+from lib.horizon import Horizon
+from platforms.readers import create_reader
+from lib.tmux import get_tmux_opt, get_colorscheme
 
 
 DEFAULT_WIDTH = 8

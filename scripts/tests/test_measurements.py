@@ -2,7 +2,7 @@ import unittest
 import threading
 import time
 
-from ..measurements import Measurements, generate_random_id
+from ..lib.measurements import Measurements, generate_random_id
 
 
 class TestGenerateRandomID(unittest.TestCase):

@@ -1,5 +1,5 @@
 import unittest
-from ..colors import to_scheme
+from ..lib.colors import to_scheme
 
 
 class TestToScheme(unittest.TestCase):

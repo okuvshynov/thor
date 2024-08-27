@@ -1,5 +1,5 @@
 import unittest
-from ..horizon import gen_blocks
+from ..lib.horizon import gen_blocks
 
 
 class TestGetBlocks(unittest.TestCase):

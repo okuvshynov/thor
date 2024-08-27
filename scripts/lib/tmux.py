@@ -1,6 +1,6 @@
 import subprocess
 
-from colors import to_scheme
+from .colors import to_scheme
 
 
 def get_tmux_opt(name, default):
