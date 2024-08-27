@@ -6,3 +6,4 @@
 - [x] we define command which runs status bar, but if it ran once and long-poll is set up, it does nothing
 - [ ] remote version
 - [ ] graphite API?
+- [ ] two parts - local with placeholders + a set of scripts to parse other data sources.

@@ -14,7 +14,8 @@ thor_placeholders=(
     "\#{thor_wired}"
     "\#{thor_cpu}"
     "\#{thor_swap}"
-    "\#{thor_graphite}"
+    "\#(thor_graphite "
+    "\#(thor_any "
 )
 
 thor_commands=(
@@ -25,7 +26,8 @@ thor_commands=(
     "#($CURRENT_DIR/scripts/metric.sh wired)"
     "#($CURRENT_DIR/scripts/metric.sh cpu)"
     "#($CURRENT_DIR/scripts/metric.sh swap)"
-    "#($CURRENT_DIR/scripts/graphite_reader.sh)"
+    "#($CURRENT_DIR/scripts/graphite_reader.sh "
+    "#($CURRENT_DIR/scripts/any_reader.sh "
 )
 
 do_expand() {
