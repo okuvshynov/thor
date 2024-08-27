@@ -19,15 +19,15 @@ thor_placeholders=(
 )
 
 thor_commands=(
-    "#($CURRENT_DIR/scripts/metric.sh ecpu)"
-    "#($CURRENT_DIR/scripts/metric.sh pcpu)"
-    "#($CURRENT_DIR/scripts/metric.sh gpu)"
-    "#($CURRENT_DIR/scripts/metric.sh rss)"
-    "#($CURRENT_DIR/scripts/metric.sh wired)"
-    "#($CURRENT_DIR/scripts/metric.sh cpu)"
-    "#($CURRENT_DIR/scripts/metric.sh swap)"
-    "#($CURRENT_DIR/scripts/graphite_reader.sh "
-    "#($CURRENT_DIR/scripts/any_reader.sh "
+    "#($CURRENT_DIR/scripts/local.sh ecpu)"
+    "#($CURRENT_DIR/scripts/local.sh pcpu)"
+    "#($CURRENT_DIR/scripts/local.sh gpu)"
+    "#($CURRENT_DIR/scripts/local.sh rss)"
+    "#($CURRENT_DIR/scripts/local.sh wired)"
+    "#($CURRENT_DIR/scripts/local.sh cpu)"
+    "#($CURRENT_DIR/scripts/local.sh swap)"
+    "#($CURRENT_DIR/scripts/graphite.sh "
+    "#($CURRENT_DIR/scripts/custom.sh "
 )
 
 do_expand() {
