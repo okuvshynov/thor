@@ -14,14 +14,21 @@ class LinuxReader:
         return METRICS
 
     def read_nvidia_gpu(self):
-        command = [
-            "nvidia-smi",
-            "--query-gpu=utilization.gpu",
-            "--format=csv,noheader,nounits"
-        ]
-        result = subprocess.run(command, capture_output=True, text=True)
+        try:
+            command = [
+                "nvidia-smi",
+                "--query-gpu=utilization.gpu",
+                "--format=csv,noheader,nounits"
+            ]
+            result = subprocess.run(command, capture_output=True, text=True)
+        except FileNotFoundError:
+            # no nvidia-smi installed
+            return None
         if result.returncode == 0:
-            return float(result.stdout.strip()) / 100.0
+            try:
+                return float(result.stdout.strip()) / 100.0
+            except ValueError:
+                return None
         else:
             return None
 
