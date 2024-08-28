@@ -33,7 +33,10 @@ class LinuxReader:
                 if line.startswith('SwapFree:'):
                     swap_free = int(line.split()[1])
 
-        swap_usage = 1.0 - 1.0 * swap_free / swap_total
+        if swap_total > 0:
+            swap_usage = 1.0 - 1.0 * swap_free / swap_total
+        else:
+            swap_usage = 0.0
         # Both rss and total_memory are in KB
         return 1.0 * rss / self.total_memory, swap_usage
 
