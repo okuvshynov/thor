@@ -1,3 +1,4 @@
+import subprocess
 import time
 
 
@@ -13,13 +14,16 @@ class LinuxReader:
         return METRICS
 
     def read_nvidia_gpu(self):
-        command = ["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"]
+        command = [
+            "nvidia-smi",
+            "--query-gpu=utilization.gpu",
+            "--format=csv,noheader,nounits"
+        ]
         result = subprocess.run(command, capture_output=True, text=True)
         if result.returncode == 0:
             return float(result.stdout.strip()) / 100.0
         else:
             return None
-
 
     def read_rss(self):
         if self.total_memory is None:
