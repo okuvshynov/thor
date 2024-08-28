@@ -1,7 +1,7 @@
 import time
 
 
-METRICS = ['cpu', 'rss', 'swap']
+METRICS = ['cpu', 'rss', 'swap', 'gpu']
 
 
 class LinuxReader:
@@ -11,6 +11,15 @@ class LinuxReader:
 
     def metrics(self):
         return METRICS
+
+    def read_nvidia_gpu(self):
+        command = ["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"]
+        result = subprocess.run(command, capture_output=True, text=True)
+        if result.returncode == 0:
+            return float(result.stdout.strip()) / 100.0
+        else:
+            return None
+
 
     def read_rss(self):
         if self.total_memory is None:
@@ -60,7 +69,12 @@ class LinuxReader:
 
                 rss, swap = self.read_rss()
 
-                measurements.append({'cpu': usage, 'rss': rss, 'swap': swap})
+                slice = {'cpu': usage, 'rss': rss, 'swap': swap}
+                gpu = self.read_nvidia_gpu()
+                if gpu is not None:
+                    slice['gpu'] = gpu
+
+                measurements.append(slice)
 
             prev_total = total
             prev_idle = idle
