@@ -1,6 +1,8 @@
 import plistlib
 import subprocess
 
+METRICS = ['ecpu', 'pcpu', 'rss', 'wired', 'gpu']
+
 
 class MacOSReader:
     def __init__(self, options):
@@ -9,6 +11,9 @@ class MacOSReader:
         self.page_size = int(out.decode('utf-8').strip())
         out = subprocess.check_output(['sysctl', 'hw.memsize'])
         self.mem_size = int(out.decode('utf-8').split(':')[-1].strip())
+
+    def metrics(self):
+        return METRICS
 
     def get_vm_stat(self):
         """
