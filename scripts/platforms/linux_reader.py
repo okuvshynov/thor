@@ -26,7 +26,8 @@ class LinuxReader:
             return None
         if result.returncode == 0:
             try:
-                return float(result.stdout.strip()) / 100.0
+                per_gpu = [float(v) for v in result.stdout.strip().split('\n')]
+                return sum(per_gpu) / 100.0 / len(per_gpu)
             except ValueError:
                 return None
         else:
