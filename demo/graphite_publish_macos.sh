@@ -14,6 +14,6 @@ send_graphana() {
 }]'
 }
 
-sudo powermetrics -i $interval_ms -s gpu_power,cpu_power | grep --line-buffered -E '^(GPU idle residency:|P[0-9]+-Cluster idle residency:)' | awk '{gsub("%", "", $NF); print $1, 1-$NF/100; system("")}' | while read -r key value; do
+sudo powermetrics -i $interval_ms -s gpu_power,cpu_power | grep --line-buffered -E '^(GPU idle residency:|P[0-9]+-Cluster idle residency:)' | awk '{gsub("%", "", $NF); print tolower($1), 1-$NF/100; system("")}' | while read -r key value; do
     send_graphana "$key" "$value"
 done
