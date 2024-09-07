@@ -37,7 +37,8 @@ def to_scheme(start, end, n):
         n (int): The number of colors to generate in the scheme (must be >= 2).
 
     Returns:
-        list: A list of n colors in hexadecimal format (#RRGGBB), interpolated between the start and end colors.
+        list: A list of n colors in hexadecimal format (#RRGGBB),
+              interpolated between the start and end colors.
 
     Raises:
         ValueError: If n is less than 2.
@@ -52,6 +53,7 @@ def to_scheme(start, end, n):
     color = interpolator(start, end)
     step = 1.0 / (n - 1.0)
     return [color(i * step) for i in range(n)]
+
 
 def is_valid_hex_color(color):
     """
