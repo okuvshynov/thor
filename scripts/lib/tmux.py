@@ -21,4 +21,8 @@ def get_colorscheme():
     start = get_tmux_opt('color_start', '#52bf37').strip("\"")
     end = get_tmux_opt('color_end', '#003300').strip("\"")
     bands = int(get_tmux_opt('color_bands', 4))
-    return to_scheme(start, end, bands)
+    is_mono = int(get_tmux_opt('color_mono', 0))
+    if is_mono:
+        return None
+    else:
+        return to_scheme(start, end, bands)

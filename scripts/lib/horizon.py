@@ -2,6 +2,9 @@ def gen_blocks(colors):
     blocks = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
     res = []
 
+    if colors is None:
+        return blocks
+
     for i in range(len(colors) - 1):
         color1, color2 = colors[i], colors[i + 1]
         j = 0 if i == 0 else 1
@@ -14,10 +17,12 @@ def gen_blocks(colors):
 class Horizon:
     def __init__(self):
         self.colors = None
+        self.blocks = gen_blocks(self.colors)
+        self.style = ""
 
     def plot(self, values, colors):
         if colors != self.colors:
-            self.style = f"#[default,bg={colors[0]}]"
+            self.style = "" if colors is None else f"#[default,bg={colors[0]}]"
             self.blocks = gen_blocks(colors)
             self.colors = colors
 
